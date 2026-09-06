@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5173/api";
+const API_URL = "http://localhost:8000/api";
 
 export async function getResources() {
     const response = await fetch(`${API_URL}/resources/`);
@@ -10,8 +10,12 @@ export async function getResources() {
     return response.json();
 }
 
-export async function getBookings() {
-    const response = await fetch(`${API_URL}/bookings/`);
+export async function getBookings(resourceId) {
+    const url = resourceId
+        ? `${API_URL}/bookings/?resource=${resourceId}`
+        : `${API_URL}/bookings/`;
+
+    const response = await fetch(url);
 
     if (!response.ok) {
         throw new Error("Failed to fetch bookings");
@@ -19,7 +23,6 @@ export async function getBookings() {
 
     return response.json();
 }
-
 export async function createBooking(booking) {
     const response = await fetch(`${API_URL}/bookings/`, {
         method: "POST",
