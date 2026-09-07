@@ -5,18 +5,46 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Resource, Booking
-from .serializers import ResourceSerializer, BookingSerializer
+from .models import Resource, Booking, Business
+from .serializers import ResourceSerializer, BookingSerializer, BusinessSerializer
+
+
+class BusinessListCreateView(APIView):
+    """
+    GET  /api/businesses/            -> list all businesses (optionally filter by name)
+    POST /api/businesses/            -> create a new business
+    """
+
+    def get(self, request):
+        businesses = Business.objects.all()
+
+        name = request.query_params.get("name")
+        if name:
+            businesses = businesses.filter(name__icontains=name)
+
+        serializer = BusinessSerializer(businesses, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = BusinessSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ResourceListCreateView(APIView):
     """
-    GET  /api/resources/   -> list all resources
-    POST /api/resources/   -> create a new resource
+    GET  /api/resources/             -> list all resources (optionally filter by business)
+    POST /api/resources/             -> create a new resource
     """
 
     def get(self, request):
         resources = Resource.objects.all()
+
+        business_id = request.query_params.get("business")
+        if business_id:
+            resources = resources.filter(business_id=business_id)
+
         serializer = ResourceSerializer(resources, many=True)
         return Response(serializer.data)
 
@@ -70,15 +98,14 @@ class BookingListCreateView(APIView):
         try:
             with transaction.atomic():
                 serializer.save()
-                serializer.instance.refresh_from_db()   # <-- add this line
+                serializer.instance.refresh_from_db()
         except IntegrityError:
             return Response(
                 {"detail": "This resource is already booked for the requested time range."},
                 status=status.HTTP_409_CONFLICT,
-        )
+            )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 
 class BookingDetailView(APIView):

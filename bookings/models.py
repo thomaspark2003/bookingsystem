@@ -1,4 +1,3 @@
-# Create your models here.
 import uuid
 
 from django.db import models
@@ -8,12 +7,28 @@ from django.contrib.postgres.fields import RangeOperators
 from django.db.models import Q
 
 
+class Business(models.Model):
+    """
+    A host/company using this app -- e.g. a hotel, event organizer,
+    or coaching business. Every Resource belongs to exactly one Business,
+    which is what lets a customer see only one business's listings.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=200)
+    owner_id = models.UUIDField()  # whoever "owns" this business -- no real auth yet
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Resource(models.Model):
     """
     A bookable thing: a hotel room, a study room, an appointment slot,
     an event, a meetup -- 'type' + 'metadata' let one table cover all of them.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="resources")
     type = models.CharField(max_length=50)          # e.g. 'hotel_room', 'appointment', 'event'
     name = models.CharField(max_length=200)
     capacity = models.IntegerField(default=1)        # 1 = exclusive booking, N = shared/event

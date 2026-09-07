@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { createBooking } from "../services/api";
-
 import { getCurrentUserId } from "../services/user";
 
 const FAKE_USER_ID = getCurrentUserId();
@@ -15,16 +14,10 @@ function BookingForm({ resource, onClose, onBooked }) {
     async function handleSubmit(e) {
         e.preventDefault();
         setError(null);
+        setSubmitting(true);
 
         const startDate = new Date(start);
         const endDate = new Date(end);
-
-        if (startDate.toDateString() !== endDate.toDateString()) {
-            setError("Start and end must be on the same day.");
-            return;
-        }
-
-        setSubmitting(true);
 
         const booking = {
             resource: resource.id,

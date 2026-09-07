@@ -38,3 +38,63 @@ export async function createBooking(booking) {
 
     return response.json();
 }
+
+export async function updateBooking(id, data) {
+    const response = await fetch(`${API_URL}/bookings/${id}/`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to update booking");
+    }
+
+    return response.json();
+}
+
+export async function createResource(resource) {
+    const response = await fetch(`${API_URL}/resources/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(resource),
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to create resource");
+    }
+
+    return response.json();
+}
+
+export async function deleteResource(id) {
+    const response = await fetch(`${API_URL}/resources/${id}/`, {
+        method: "DELETE",
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to delete resource");
+    }
+}
+
+export async function searchBusinesses(name) {
+    const response = await fetch(`${API_URL}/businesses/?name=${encodeURIComponent(name)}`);
+    if (!response.ok) {
+        throw new Error("Failed to search businesses");
+    }
+    return response.json();
+}
+
+export async function createBusiness(business) {
+    const response = await fetch(`${API_URL}/businesses/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(business),
+    });
+    if (!response.ok) {
+        throw new Error("Failed to create business");
+    }
+    return response.json();
+}
